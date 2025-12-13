@@ -64,7 +64,11 @@ import {
   Star,
   TrendingUp,
   Shield as ShieldIcon,
-  Cloud as CloudIcon
+  Cloud as CloudIcon,
+  ChevronLeft,
+  ChevronRight as ChevronRightIcon,
+  X,
+  Image as LucideImage
 } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 
@@ -99,7 +103,7 @@ interface Project {
   status: string
   code_link: string
   demo_link: string
-  image: string | null
+  images: string[]
 }
 
 interface Skill {
@@ -189,32 +193,27 @@ function SimpleGlobeWithChase({ speed }: GlobeProps) {
   useFrame((state) => {
     const t = state.clock.getElapsedTime()
     
-    // Rotation de la sphère
     if (globeRef.current) {
       globeRef.current.rotation.y = t * 0.3 * speed
     }
     
-    // Animation des personnages
     if (hackerRef.current && agentRef.current) {
       const radius = 1.6
       const hackerAngle = t * 0.8 * speed
       const agentAngle = hackerAngle + Math.PI * 0.7
       
-      // Hacker (rouge)
       hackerRef.current.position.set(
         Math.cos(hackerAngle) * radius,
         Math.sin(t * 3) * 0.2,
         Math.sin(hackerAngle) * radius
       )
       
-      // Agent (bleu)
       agentRef.current.position.set(
         Math.cos(agentAngle) * radius,
         Math.sin(t * 3 + Math.PI) * 0.2,
         Math.sin(agentAngle) * radius
       )
       
-      // Orienter les personnages
       const hackerLookAt = new THREE.Vector3(
         Math.cos(hackerAngle + 0.1) * radius,
         Math.sin(t * 3) * 0.2,
@@ -234,7 +233,6 @@ function SimpleGlobeWithChase({ speed }: GlobeProps) {
   
   return (
     <group>
-      {/* Sphère principale simple */}
       <Sphere ref={globeRef} args={[1.5, 32, 32]}>
         <meshStandardMaterial 
           color="#0ea5e9"
@@ -248,31 +246,26 @@ function SimpleGlobeWithChase({ speed }: GlobeProps) {
         />
       </Sphere>
       
-      {/* Personnage rouge */}
       <group ref={hackerRef}>
         <mesh>
           <sphereGeometry args={[0.1, 8, 8]} />
           <meshStandardMaterial color="#ef4444" emissive="#ef4444" emissiveIntensity={0.3} />
         </mesh>
-        {/* Corps */}
         <mesh position={[0, -0.15, 0]}>
           <boxGeometry args={[0.15, 0.2, 0.1]} />
           <meshStandardMaterial color="#dc2626" />
         </mesh>
       </group>
       
-      {/* Personnage bleu */}
       <group ref={agentRef}>
         <mesh>
           <sphereGeometry args={[0.1, 8, 8]} />
           <meshStandardMaterial color="#3b82f6" emissive="#3b82f6" emissiveIntensity={0.3} />
         </mesh>
-        {/* Corps */}
         <mesh position={[0, -0.15, 0]}>
           <boxGeometry args={[0.15, 0.2, 0.1]} />
           <meshStandardMaterial color="#1d4ed8" />
         </mesh>
-        {/* Bouclier */}
         <mesh position={[0.12, 0, 0]}>
           <boxGeometry args={[0.03, 0.2, 0.05]} />
           <meshStandardMaterial color="#60a5fa" />
@@ -284,9 +277,27 @@ function SimpleGlobeWithChase({ speed }: GlobeProps) {
 
 // ================= PROJECT DETAILS =================
 function ProjectDetailsPage({ project, onClose }: ProjectDetailsProps) {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+
   const isValidImage = (str: string | null): boolean => {
     if (!str) return false
     return str.startsWith('data:image/') || str.startsWith('http')
+  }
+
+  const nextImage = () => {
+    if (project.images && project.images.length > 0) {
+      setCurrentImageIndex((prev) => 
+        prev === project.images.length - 1 ? 0 : prev + 1
+      )
+    }
+  }
+
+  const prevImage = () => {
+    if (project.images && project.images.length > 0) {
+      setCurrentImageIndex((prev) => 
+        prev === 0 ? project.images.length - 1 : prev - 1
+      )
+    }
   }
 
   return (
@@ -296,7 +307,7 @@ function ProjectDetailsPage({ project, onClose }: ProjectDetailsProps) {
       exit={{ opacity: 0 }}
       className="fixed inset-0 bg-black/95 backdrop-blur-lg z-[100] flex items-center justify-center p-4"
     >
-      <div className="bg-gray-900/95 border border-cyan-500/30 rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-gray-900/95 border border-cyan-500/30 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-start mb-6">
             <div>
@@ -322,17 +333,88 @@ function ProjectDetailsPage({ project, onClose }: ProjectDetailsProps) {
               onClick={onClose} 
               className="text-gray-400 hover:text-white p-2 hover:bg-gray-800 rounded-lg transition-colors"
             >
-              ×
+              <X size={24} />
             </button>
           </div>
 
-          {project.image && isValidImage(project.image) && (
+          {project.images && project.images.length > 0 && (
             <div className="mb-6">
-              <img 
-                src={project.image} 
-                alt={project.title} 
-                className="w-full h-64 object-cover rounded-lg border border-gray-800"
-              />
+              <div className="relative h-96 rounded-lg overflow-hidden border border-gray-800">
+                {project.images[currentImageIndex] && isValidImage(project.images[currentImageIndex]) ? (
+                  <img 
+                    src={project.images[currentImageIndex]} 
+                    alt={`${project.title} - Image ${currentImageIndex + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-cyan-900/20 to-purple-900/20">
+                    <Code size={64} className="text-cyan-400" />
+                  </div>
+                )}
+                
+                {project.images.length > 1 && (
+                  <>
+                    <button 
+                      onClick={prevImage}
+                      className="absolute left-4 top-1/2 transform -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+                    >
+                      <ChevronLeft size={24} />
+                    </button>
+                    <button 
+                      onClick={nextImage}
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+                    >
+                      <ChevronRightIcon size={24} />
+                    </button>
+                    
+                    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
+                      {project.images.map((_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setCurrentImageIndex(index)}
+                          className={`w-2 h-2 rounded-full transition-all ${
+                            index === currentImageIndex 
+                              ? 'bg-cyan-400 scale-125' 
+                              : 'bg-gray-600 hover:bg-gray-400'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+                
+                <div className="absolute top-4 right-4 bg-black/70 text-white text-sm px-3 py-1 rounded-full">
+                  {currentImageIndex + 1} / {project.images.length}
+                </div>
+              </div>
+              
+              {project.images.length > 1 && (
+                <div className="grid grid-cols-4 gap-2 mt-4">
+                  {project.images.map((img, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentImageIndex(index)}
+                      className={`relative h-20 rounded overflow-hidden border transition-all ${
+                        index === currentImageIndex 
+                          ? 'border-cyan-400 scale-105' 
+                          : 'border-gray-700 hover:border-gray-500'
+                      }`}
+                    >
+                      {isValidImage(img) ? (
+                        <img 
+                          src={img} 
+                          alt={`Mini ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                          <LucideImage size={16} className="text-gray-500" />
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -384,6 +466,23 @@ function ProjectDetailsPage({ project, onClose }: ProjectDetailsProps) {
               </a>
             )}
           </div>
+
+          <div className="mt-8 pt-6 border-t border-gray-800">
+            <div className="flex items-center justify-between text-sm text-gray-400">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span>{project.images?.length || 0} image(s)</span>
+              </div>
+              <div className="flex items-center gap-4">
+                {project.tags && project.tags.length > 0 && (
+                  <span>{project.tags.length} tag(s)</span>
+                )}
+                {project.technologies && project.technologies.length > 0 && (
+                  <span>{project.technologies.length} technologie(s)</span>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </motion.div>
@@ -404,6 +503,8 @@ function ProjectCard({ project, index, onClick }: ProjectCardProps) {
     return str.startsWith('data:image/') || str.startsWith('http')
   }
   
+  const mainImage = project.images && project.images.length > 0 ? project.images[0] : null
+  
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -414,14 +515,19 @@ function ProjectCard({ project, index, onClick }: ProjectCardProps) {
       onClick={() => onClick(project)}
       className="bg-gradient-to-br from-gray-900/50 to-black/50 rounded-xl overflow-hidden border border-gray-800 hover:border-cyan-500/50 transition-all cursor-pointer group h-full flex flex-col"
     >
-      {/* Image du projet */}
-      {project.image && isValidImage(project.image) ? (
+      {mainImage && isValidImage(mainImage) ? (
         <div className="h-48 overflow-hidden relative">
           <img 
-            src={project.image} 
+            src={mainImage} 
             alt={project.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
+          {project.images && project.images.length > 1 && (
+            <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+              <LucideImage size={10} />
+              {project.images.length}
+            </div>
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
         </div>
       ) : (
@@ -468,7 +574,14 @@ function ProjectCard({ project, index, onClick }: ProjectCardProps) {
           <span className="text-cyan-400 text-sm font-medium">
             Voir les détails
           </span>
-          <ExternalLink size={16} className="text-cyan-400 group-hover:translate-x-1 transition-transform" />
+          <div className="flex items-center gap-2">
+            {project.images && project.images.length > 0 && (
+              <span className="text-xs text-gray-400">
+                {project.images.length} image(s)
+              </span>
+            )}
+            <ExternalLink size={16} className="text-cyan-400 group-hover:translate-x-1 transition-transform" />
+          </div>
         </div>
       </div>
     </motion.div>
@@ -671,12 +784,10 @@ const downloadCVFromBase64 = (cvData: string | null, cvFilename: string | null, 
   }
 
   try {
-    // Extraire le type MIME et les données base64
     const base64String = cvData
     const mimeType = cvType || 'application/pdf'
     const filename = cvFilename || 'cv.pdf'
     
-    // Convertir base64 en blob
     const byteString = atob(base64String.split(',')[1])
     const ab = new ArrayBuffer(byteString.length)
     const ia = new Uint8Array(ab)
@@ -687,17 +798,14 @@ const downloadCVFromBase64 = (cvData: string | null, cvFilename: string | null, 
     
     const blob = new Blob([ab], { type: mimeType })
     
-    // Créer un lien de téléchargement
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
     link.download = filename
     
-    // Déclencher le téléchargement
     document.body.appendChild(link)
     link.click()
     
-    // Nettoyer
     setTimeout(() => {
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
@@ -733,7 +841,6 @@ const loadPortfolioData = async () => {
   try {
     console.log("🔄 Chargement des données du portfolio...")
     
-    // Charger toutes les données depuis Supabase
     const [
       { data: personalInfo, error: personalError },
       { data: projects, error: projectsError },
@@ -748,14 +855,12 @@ const loadPortfolioData = async () => {
       supabase.from('timeline').select('*').order('year', { ascending: false })
     ])
 
-    // Gestion des erreurs
     if (personalError) console.error("Erreur personal_info:", personalError)
     if (projectsError) console.error("Erreur projects:", projectsError)
     if (skillsError) console.error("Erreur skills:", skillsError)
     if (certsError) console.error("Erreur certifications:", certsError)
     if (timelineError) console.error("Erreur timeline:", timelineError)
 
-    // Conversion des données pour correspondre à nos types
     const formattedProjects: Project[] = (projects || []).map((p: any) => ({
       id: p.id,
       title: p.title || "Sans titre",
@@ -766,7 +871,7 @@ const loadPortfolioData = async () => {
       status: p.status || "En cours",
       code_link: p.code_link || "",
       demo_link: p.demo_link || "",
-      image: p.image || null
+      images: p.images || []
     }))
 
     const formattedSkills: Skill[] = (skills || []).map((s: any) => ({
@@ -793,7 +898,6 @@ const loadPortfolioData = async () => {
       description: t.description || ""
     }))
 
-    // Si nous avons des données personnelles, utiliser les colonnes séparées
     let personalData: PersonalInfo
     if (personalInfo) {
       personalData = {
@@ -808,7 +912,6 @@ const loadPortfolioData = async () => {
         cv_data: personalInfo.cv_data || null,
         cv_filename: personalInfo.cv_filename || null,
         cv_type: personalInfo.cv_type || null,
-        // Utiliser les colonnes séparées (priorité) ou l'objet stats (rétrocompatibilité)
         experience: personalInfo.experience || 
                     (personalInfo.stats?.experience ? personalInfo.stats.experience : DEFAULT_PERSONAL_INFO.experience),
         projects: personalInfo.projects || 
@@ -831,7 +934,6 @@ const loadPortfolioData = async () => {
     }
   } catch (error) {
     console.error("🚨 Erreur lors du chargement des données:", error)
-    // Retourner les données par défaut en cas d'erreur
     return {
       personalInfo: DEFAULT_PERSONAL_INFO,
       projects: [],
@@ -867,7 +969,6 @@ export default function Portfolio() {
     contact: useRef<HTMLElement>(null),
   }
 
-  // Fonction pour charger les données
   const loadData = async () => {
     setLoading(true)
     try {
@@ -875,6 +976,10 @@ export default function Portfolio() {
       setData(portfolioData)
       setLastUpdate(new Date().toLocaleTimeString())
       console.log("✅ Données chargées avec succès")
+      
+      portfolioData.projects.forEach((project, index) => {
+        console.log(`📁 Projet ${index}: ${project.title} - ${project.images?.length || 0} images`)
+      })
     } catch (error) {
       console.error("Erreur lors du chargement:", error)
       setShowNotification("Erreur de chargement des données")
@@ -883,16 +988,13 @@ export default function Portfolio() {
     }
   }
 
-  // Charger les données initiales
   useEffect(() => {
     loadData()
   }, [])
 
-  // ================= SUIVI EN TEMPS RÉEL =================
   useEffect(() => {
     console.log("🔔 Initialisation du suivi en temps réel...")
     
-    // S'abonner aux changements de toutes les tables
     const personalInfoChannel = supabase
       .channel('personal_info_changes')
       .on('postgres_changes', 
@@ -900,7 +1002,7 @@ export default function Portfolio() {
         (payload) => {
           console.log("📊 Changement détecté dans personal_info:", payload)
           setShowNotification("✅ Informations personnelles mises à jour")
-          setTimeout(loadData, 500) // Recharger après 0.5s
+          setTimeout(loadData, 500)
         }
       )
       .subscribe()
@@ -953,7 +1055,6 @@ export default function Portfolio() {
       )
       .subscribe()
 
-    // Nettoyer les abonnements à la fin
     return () => {
       console.log("🔕 Désabonnement des canaux de suivi...")
       supabase.removeChannel(personalInfoChannel)
@@ -970,7 +1071,6 @@ export default function Portfolio() {
     setActiveSection(section)
   }
 
-  // Accélération automatique
   useEffect(() => {
     if (!autoSpeed) return
     
@@ -986,7 +1086,6 @@ export default function Portfolio() {
     return () => clearInterval(interval)
   }, [autoSpeed])
 
-  // Gestionnaire de notification
   useEffect(() => {
     if (showNotification) {
       const timer = setTimeout(() => {
@@ -1009,7 +1108,6 @@ export default function Portfolio() {
 
   return (
     <div className="bg-black text-gray-200 min-h-screen relative overflow-x-hidden">
-      {/* Notification en temps réel */}
       {showNotification && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -1022,7 +1120,6 @@ export default function Portfolio() {
         </motion.div>
       )}
 
-      {/* Indicateur de mise à jour en temps réel */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -1044,13 +1141,11 @@ export default function Portfolio() {
         </div>
       </motion.div>
 
-      {/* ================= BACKGROUND ================= */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute inset-0 bg-gradient-to-b from-gray-900 via-black to-gray-900"></div>
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-900/10 via-transparent to-transparent"></div>
       </div>
 
-      {/* ================= NAVBAR ================= */}
       <nav className="fixed w-full z-50 bg-black/90 backdrop-blur-lg border-b border-gray-800/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -1101,7 +1196,6 @@ export default function Portfolio() {
         </div>
       </nav>
 
-      {/* ================= PROJECT DETAILS MODAL ================= */}
       {selectedProject && (
         <ProjectDetailsPage
           project={selectedProject}
@@ -1109,11 +1203,9 @@ export default function Portfolio() {
         />
       )}
 
-      {/* ================= HERO SECTION ================= */}
       <section ref={sections.home} className="min-h-screen flex items-center justify-center pt-16 px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-7xl mx-auto w-full">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* GAUCHE - INFOS PERSONNELLES */}
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
@@ -1121,7 +1213,6 @@ export default function Portfolio() {
               className="space-y-8"
             >
               <div className="flex flex-col lg:flex-row items-start gap-8">
-                {/* Photo de profil */}
                 <div className="relative mx-auto lg:mx-0">
                   <div className="w-48 h-48 rounded-full border-4 border-cyan-500/30 overflow-hidden bg-gradient-to-br from-gray-900 to-black shadow-2xl shadow-cyan-500/20">
                     {data.personalInfo?.photo ? (
@@ -1136,11 +1227,9 @@ export default function Portfolio() {
                       </div>
                     )}
                   </div>
-                  {/* Badge en ligne */}
                   <div className="absolute -bottom-2 -right-2 w-14 h-14 bg-gradient-to-br from-cyan-600 to-purple-600 rounded-full flex items-center justify-center border-4 border-black shadow-lg">
                     <ShieldCheck className="text-white" size={24} />
                   </div>
-                  {/* Effet de scan */}
                   <motion.div 
                     className="absolute inset-0 rounded-full border-2 border-cyan-400/20"
                     animate={{ scale: [1, 1.1, 1] }}
@@ -1177,9 +1266,6 @@ export default function Portfolio() {
                     </span>
                     <span className="text-sm bg-blue-900/30 text-blue-300 px-3 py-1 rounded-full border border-blue-700/50">
                       🛡️ Cybersécurité
-                    </span>
-                    <span className="text-sm bg-cyan-900/30 text-cyan-300 px-3 py-1 rounded-full border border-cyan-700/50">
-                      💻 Full Stack
                     </span>
                   </motion.div>
                 </div>
@@ -1259,7 +1345,6 @@ export default function Portfolio() {
               </motion.div>
             </motion.div>
 
-            {/* DROITE - VISUALISATION 3D */}
             <motion.div 
               className="h-[500px] relative"
               initial={{ opacity: 0, x: 50 }}
@@ -1297,7 +1382,6 @@ export default function Portfolio() {
         </div>
       </section>
 
-      {/* ================= PROJETS ================= */}
       <Section 
         title="Mes Projets" 
         subtitle="Découvrez mes réalisations en cybersécurité et développement"
@@ -1323,7 +1407,6 @@ export default function Portfolio() {
         )}
       </Section>
 
-      {/* ================= COMPÉTENCES ================= */}
       <Section 
         title="Mes Compétences" 
         subtitle="Expertises techniques en cybersécurité et développement"
@@ -1347,7 +1430,6 @@ export default function Portfolio() {
           </div>
         )}
         
-        {/* Statistiques supplémentaires */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
           <div className="bg-gradient-to-br from-gray-900/50 to-black/50 p-6 rounded-xl border border-gray-800 text-center">
             <div className="text-3xl font-bold text-cyan-400 mb-2">50+</div>
@@ -1368,7 +1450,6 @@ export default function Portfolio() {
         </div>
       </Section>
 
-      {/* ================= CERTIFICATIONS ================= */}
       <Section 
         title="Certifications" 
         subtitle="Accréditations professionnelles en cybersécurité"
@@ -1392,7 +1473,6 @@ export default function Portfolio() {
           </div>
         )}
         
-        {/* Timeline */}
         {data.timeline.length > 0 && (
           <div className="mt-12">
             <div className="relative">
@@ -1406,7 +1486,6 @@ export default function Portfolio() {
         )}
       </Section>
 
-      {/* ================= CONTACT ================= */}
       <Section 
         title="Contact" 
         subtitle="Travaillons ensemble pour sécuriser votre futur"
@@ -1448,7 +1527,6 @@ export default function Portfolio() {
             />
           </div>
           
-          {/* Formulaire de contact */}
           <div className="mt-12 bg-gradient-to-br from-gray-900/50 to-black/50 rounded-xl p-8 border border-gray-800">
             <h3 className="text-xl font-bold text-white mb-6">Envoyez un message</h3>
             <form className="space-y-6" onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
@@ -1507,7 +1585,6 @@ export default function Portfolio() {
         </div>
       </Section>
 
-      {/* ================= FOOTER ================= */}
       <footer className="py-8 border-t border-gray-800/50 bg-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
@@ -1520,18 +1597,18 @@ export default function Portfolio() {
               </motion.div>
               <div>
                 <div className="text-white font-bold text-lg">{data.personalInfo?.name || "Portfolio"}</div>
-                <div className="text-gray-400 text-sm">Expert Cybersécurité & Développement</div>
+                <div className="text-gray-400 text-sm">Ingenieur en Cybersécurité </div>
               </div>
             </div>
             
             <div className="flex gap-6">
-              <a href="https://github.com" className="text-gray-400 hover:text-white transition-colors">
+              <a href="https://github.com/lefurher45" className="text-gray-400 hover:text-white transition-colors">
                 <Github size={20} />
               </a>
-              <a href="https://linkedin.com" className="text-gray-400 hover:text-white transition-colors">
+              <a href="http://www.linkedin.com/in/adolphe-pana-216515351" className="text-gray-400 hover:text-white transition-colors">
                 <Linkedin size={20} />
               </a>
-              <a href={`mailto:${data.personalInfo?.email || 'contact@example.com'}`} className="text-gray-400 hover:text-white transition-colors">
+              <a href={`mailto:${data.personalInfo?.email || 'https://mail.google.com/mail/?view=cm&fs=1&to=adolpheapana@gmail.com'}`} className="text-gray-400 hover:text-white transition-colors">
                 <Mail size={20} />
               </a>
             </div>
@@ -1547,7 +1624,6 @@ export default function Portfolio() {
         </div>
       </footer>
 
-      {/* ================= ADMIN ACCESS BADGE ================= */}
       <motion.a
         href="/admin"
         initial={{ opacity: 0, y: 20 }}
@@ -1560,18 +1636,7 @@ export default function Portfolio() {
         Admin
       </motion.a>
 
-      {/* ================= REFRESH BUTTON ================= */}
-      <motion.button
-        onClick={loadData}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.2 }}
-        className="fixed bottom-4 left-4 px-4 py-2 bg-cyan-600/80 hover:bg-cyan-700/80 backdrop-blur-lg rounded-lg border border-cyan-700 z-40 text-sm text-white transition-all flex items-center gap-2"
-        title="Actualiser les données"
-      >
-        <RefreshCw size={14} />
-        Actualiser
-      </motion.button>
+      
     </div>
   )
 }
