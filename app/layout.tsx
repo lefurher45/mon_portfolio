@@ -1,5 +1,9 @@
-import type { Metadata } from "next";
+// app/layout.tsx
+import './globals.css';
+import React from 'react';
+import type { Metadata } from 'next';
 
+// Définition des métadonnées
 export const metadata: Metadata = {
   title: "Adolphe Pana | Cybersécurité & Réseaux",
   description:
@@ -31,3 +35,15 @@ export const metadata: Metadata = {
     images: ["https://adolphe.vercel.app/og-image.png"],
   },
 };
+
+// Composant Layout principal (obligatoire pour Next.js App Router)
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="fr">
+      <head>
+        {/* Ici, Next.js injectera automatiquement les métadonnées */}
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
