@@ -1178,9 +1178,6 @@ export default function Portfolio() {
                     <span className="text-sm bg-blue-900/30 text-blue-300 px-3 py-1 rounded-full border border-blue-700/50">
                       🛡️ Cybersécurité
                     </span>
-                    <span className="text-sm bg-cyan-900/30 text-cyan-300 px-3 py-1 rounded-full border border-cyan-700/50">
-                      💻 Full Stack
-                    </span>
                   </motion.div>
                 </div>
               </div>
