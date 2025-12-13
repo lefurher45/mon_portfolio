@@ -1,47 +1,30 @@
 // app/layout.tsx
 import './globals.css';
 import React from 'react';
-import type { Metadata } from 'next';
 
-// Définition des métadonnées
-export const metadata: Metadata = {
-  title: "Adolphe Pana | Cybersécurité & Réseaux",
-  description:
-    "Étudiant en sécurité informatique à ESGIS, passionné par la cybersécurité, le monitoring (Grafana) et la sécurité des systèmes et réseaux.",
-
-  openGraph: {
-    title: "Adolphe Pana | Cybersécurité & Réseaux",
-    description:
-      "Portfolio d’un étudiant en cybersécurité : sécurité réseau, phishing simulation, monitoring avec Grafana.",
-    url: "https://adolphe.vercel.app",
-    siteName: "Adolphe Portfolio",
-    images: [
-      {
-        url: "https://adolphe.vercel.app/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Adolphe Pana - Cybersécurité",
-      },
-    ],
-    locale: "fr_FR",
-    type: "website",
-  },
-
-  twitter: {
-    card: "summary_large_image",
-    title: "Adolphe Pana | Cybersécurité",
-    description:
-      "Étudiant en cybersécurité à ESGIS | Sécurité réseau | Monitoring | Ethical Hacking",
-    images: ["https://adolphe.vercel.app/og-image.png"],
-  },
-};
-
-// Composant Layout principal (obligatoire pour Next.js App Router)
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr">
       <head>
-        {/* Ici, Next.js injectera automatiquement les métadonnées */}
+        {/* Meta classiques pour WhatsApp, Messenger, Xharsap */}
+        <title>Adolphe Pana | Cybersécurité & Réseaux</title>
+        <meta name="description" content="Étudiant en cybersécurité à ESGIS, passionné par la sécurité réseau et le monitoring." />
+
+        {/* Open Graph */}
+        <meta property="og:title" content="Adolphe Pana | Cybersécurité & Réseaux" />
+        <meta property="og:description" content="Portfolio d’un étudiant en cybersécurité : sécurité réseau, phishing simulation, monitoring avec Grafana." />
+        <meta property="og:url" content="https://adolphe.vercel.app" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://adolphe.vercel.app/og-image.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:locale" content="fr_FR" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Adolphe Pana | Cybersécurité" />
+        <meta name="twitter:description" content="Étudiant en cybersécurité à ESGIS | Sécurité réseau | Monitoring | Ethical Hacking" />
+        <meta name="twitter:image" content="https://adolphe.vercel.app/og-image.png" />
       </head>
       <body>{children}</body>
     </html>
