@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Shield, Lock, Eye, EyeOff } from "lucide-react"
+import { Shield, Lock, Eye, EyeOff, Home, ArrowLeft } from "lucide-react"
 
 export default function AdminLogin() {
   const router = useRouter()
@@ -12,7 +12,7 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false)
 
   // Mot de passe administrateur (à changer)
-  const ADMIN_PASSWORD = "lol"
+  const ADMIN_PASSWORD = "mezerowalt"
 
   const handleLogin = (e) => {
     e.preventDefault()
@@ -66,6 +66,16 @@ export default function AdminLogin() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center p-4">
+      {/* Bouton pour revenir à la page principale */}
+      <button
+        onClick={() => router.push("/")}
+        className="fixed top-4 left-4 px-4 py-2 bg-gray-800/80 hover:bg-gray-700/80 backdrop-blur-lg rounded-lg border border-gray-700 z-40 text-sm text-gray-300 hover:text-white transition-all flex items-center gap-2"
+        title="Retour à la page principale"
+      >
+        <ArrowLeft size={16} />
+        Retour au portfolio
+      </button>
+
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="inline-block p-4 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-2xl mb-4">
@@ -126,6 +136,16 @@ export default function AdminLogin() {
                   Se connecter
                 </>
               )}
+            </button>
+
+            {/* Bouton alternative pour retourner à la page principale */}
+            <button
+              type="button"
+              onClick={() => router.push("/")}
+              className="w-full py-2 px-4 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white font-medium rounded-lg transition-all duration-300 flex items-center justify-center gap-2 border border-gray-700"
+            >
+              <Home size={18} />
+              Retour au portfolio
             </button>
 
             <div className="text-center">
