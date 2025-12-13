@@ -12,7 +12,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         {/* Open Graph */}
         <meta property="og:title" content="Adolphe Pana | Cybersécurité & Réseaux" />
-        <meta property="og:description" content="Portfolio d’un étudiant en cybersécurité : sécurité réseau, phishing simulation, monitoring avec Grafana." />
+        <meta property="og:description" content="sécurité réseau, phishing simulation, monitoring avec Grafana." />
         <meta property="og:url" content="https://adolphe.vercel.app" />
         <meta property="og:type" content="website" />
         <meta property="og:image" content="https://adolphe.vercel.app/og-image.png" />
