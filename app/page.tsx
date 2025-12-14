@@ -1430,24 +1430,6 @@ export default function Portfolio() {
           </div>
         )}
         
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
-          <div className="bg-gradient-to-br from-gray-900/50 to-black/50 p-6 rounded-xl border border-gray-800 text-center">
-            <div className="text-3xl font-bold text-cyan-400 mb-2">50+</div>
-            <div className="text-gray-400">Vulnérabilités trouvées</div>
-          </div>
-          <div className="bg-gradient-to-br from-gray-900/50 to-black/50 p-6 rounded-xl border border-gray-800 text-center">
-            <div className="text-3xl font-bold text-purple-400 mb-2">30+</div>
-            <div className="text-gray-400">Systèmes audités</div>
-          </div>
-          <div className="bg-gradient-to-br from-gray-900/50 to-black/50 p-6 rounded-xl border border-gray-800 text-center">
-            <div className="text-3xl font-bold text-blue-400 mb-2">24/7</div>
-            <div className="text-gray-400">Surveillance</div>
-          </div>
-          <div className="bg-gradient-to-br from-gray-900/50 to-black/50 p-6 rounded-xl border border-gray-800 text-center">
-            <div className="text-3xl font-bold text-green-400 mb-2">100%</div>
-            <div className="text-gray-400">Satisfaction client</div>
-          </div>
-        </div>
       </Section>
 
       <Section 
@@ -1498,7 +1480,7 @@ export default function Portfolio() {
               icon={<Mail className="text-cyan-400" size={24} />}
               title="Email Professionnel"
               description="Contactez-moi pour des consultations"
-              link={`mailto:${data.personalInfo?.email || 'contact@example.com'}`}
+              link={`mailto:${data.personalInfo?.email || 'adolpheapana@gmail.com'}`}
               pulse={true}
             />
             
@@ -1506,7 +1488,7 @@ export default function Portfolio() {
               icon={<Phone className="text-cyan-400" size={24} />}
               title="Appel Sécurisé"
               description="Discutons de votre projet"
-              link={`tel:${data.personalInfo?.phone || '+22800000000'}`}
+              link={`tel:${data.personalInfo?.phone || '+22891170820'}`}
               pulse={true}
             />
             
@@ -1623,20 +1605,6 @@ export default function Portfolio() {
           </div>
         </div>
       </footer>
-
-      <motion.a
-        href="/admin"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1 }}
-        className="fixed bottom-4 right-4 px-4 py-2 bg-gray-800/80 hover:bg-gray-700/80 backdrop-blur-lg rounded-lg border border-gray-700 z-40 text-sm text-gray-300 hover:text-white transition-all flex items-center gap-2"
-        title="Accéder au dashboard admin"
-      >
-        <Settings size={14} />
-        Admin
-      </motion.a>
-
-      
     </div>
   )
 }
